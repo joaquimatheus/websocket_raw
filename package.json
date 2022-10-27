@@ -1,0 +1,10 @@
+{
+  "name": "websocket",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "author": "zakken <matheus@marcogabriel.com.br>",
+  "license": "unlicense",
+  "dependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
