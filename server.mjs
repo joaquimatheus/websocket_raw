@@ -49,7 +49,10 @@ function onSocketReadable(socket) {
     const maskKey = socket.read(MASK_KEY_BYTES_LENGTH);
     const encoded = socket.read(messageLength);
     const decoded = unMask(encoded, maskKey);
-    console.log(decoded.toString())
+    const buffer = decoded.toString('utf8');
+
+    const data = JSON.parse(buffer);
+    console.log('message received!', data);
 }
 
 function unMask(encodedBuffer, maskKey) {
