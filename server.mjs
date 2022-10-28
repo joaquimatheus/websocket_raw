@@ -69,7 +69,7 @@ function unMask(encodedBuffer, maskKey) {
         finalBuffer[i] = encodedBuffer[i] ^ maskKey[i % 4];
 
         const logger = {
-            unMaskCalc: `${toBinary(buffer[i])} ^ ${toBinary(
+            unMaskCalc: `${toBinary(encodedBuffer[i])} ^ ${toBinary(
                 maskKey[i % MASK_KEY_BYTES_LENGTH]
             )} = ${toBinary(finalBuffer[i])} `,
             decoded: getCharFromBinary(finalBuffer[i]),
