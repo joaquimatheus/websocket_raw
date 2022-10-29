@@ -7,9 +7,10 @@
     <title>Web Socket</title>
 </head>
 <body>
-    <output id="msg"></output> 
+    <p>messages</p>
+    <output id="messages"></output> 
     <script>
-        const msg = document.getElementById("msg")
+        const msg = document.getElementById("message")
         const socket = new WebSocket('ws://localhost:1337')
 
         socket.onopen = (ev) => {
@@ -17,19 +18,50 @@
             const id = Math.round(Math.random() * 1000)
             console.log('sending...', id)
 
-            const data = JSON.stringify({
-                id,
-                name: `[${id}] Zakken`,
-                address: {
-                    street: 'my street',
-                    number: 20 * id
-                },
-                prefession: 'developer'
-            })
+            const intervalId = setInterval(() => {
+                const data = JSON.stringify([
+                    {
+                        id,
+                        name: `[${id}] Zakken`,
+                        address: {
+                            street: 'my street',
+                            number: 20 * id
+                        },
+                        prefession: 'developer'
+                    },
+                    {
+                        id,
+                        name: `[${id}] Pelken`,
+                        address: {
+                            street: 'my street',
+                            number: 20 * id
+                        },
+                        prefession: 'developer'
+                    },
+                    {
+                        id,
+                        name: `[${id}] Yokev`,
+                        address: {
+                            street: 'my street',
+                            number: 20 * id
+                        },
+                        prefession: 'developer'
+                    },
+                ])
 
-            socket.send(data)
+                socket.send(data)
+            }, 1000)
+
+            setTimeout(() => {
+                clearInterval(intervalId)
+            }, 5000)
+        }
+
+        socket.onmessage = (msg) => {
+            const message = msg.data;
+            console.log('i got a message!', message);
+            messages.innerHTML += `<br/> ${message}`
         }        
-        socket.onmessage = (msg) => console.log("I got a message!", msg)
         socket.onerror = (err) => console.error('Web Socket error', err)
         socket.onclose = (ev) => console.log('Disconnected from WebScoket')
     </script>
