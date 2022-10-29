@@ -9,6 +9,7 @@ const SIXTEEN_BITS_MARKER = 126;
 const SIXTYTEEN_BITS_MARKER = 127;
 const FIRST_BIT = 128;
 
+const MAXIMUM_SIXTEENBITS_INTEGER = 2 ** 16
 const MASK_KEY_BYTES_LENGTH = 4;
 const OPCODE_TEXT = 0x01;
 
@@ -26,11 +27,10 @@ function onSocketUpgrade(req, socket, head) {
 
     socket.write(headers);
     socket.on("readable", () => onSocketReadable(socket));
-    
 }
 
 const sendMessage = (msg, socket) => {
-    const dataFrameBuffer = prepareMessage(msg)
+    const data = prepareMessage(msg)
     socket.write(data)
 }
 
@@ -48,6 +48,15 @@ const prepareMessage = (message) => {
     if(messageSize <= SEVEN_BITS_MARKER) {
         const bytes = [firstByte];
         dataFrameBuffer = Buffer.from(bytes.concat(messageSize));
+    }
+    else if (messageSize <= MAXIMUM_SIXTEENBITS_INTEGER ) {
+        const offsetFourBytes = 4;
+        const target = Buffer.allocUnsafe(offsetFourBytes);
+        target[0] = firstByte;
+        target[1] = SIXTEEN_BITS_MARKER | 0x0
+
+        target.writeUint16BE(messageSize, 2)
+        dataFrameBuffer = target;
     }
     else {
         throw new Error('message too long body :(');
@@ -84,7 +93,10 @@ function onSocketReadable(socket) {
 
     if (lengthIndicatorInBits <= SEVEN_BITS_MARKER) {
         messageLength = lengthIndicatorInBits;
-    } else {
+    } else if(lengthIndicatorInBits === SIXTEEN_BITS_MARKER) {
+        messageLength = socket.read(2).readUint16BE(0);
+    } 
+    else {
         throw new Error(
             `your message is too long! we don't handle 64-bit messages`
         );
